@@ -1,0 +1,25 @@
+{:deps
+ {nrepl {:mvn/version "0.6.0"}
+  enlive {:mvn/version "1.1.6"}
+  clojure.java-time {:mvn/version "0.3.2"}
+  cheshire {:mvn/version "5.10.0"}
+  google-apps-clj {:mvn/version "0.6.1"}}
+ :aliases {:uberjar
+           {:extra-deps
+            {pack/pack.alpha
+             {:git/url "https://github.com/juxt/pack.alpha.git"
+              :sha     "c70740ffc10805f34836da2160fa1899601fac02"}}
+            :main-opts ["-m" "mach.pack.alpha.capsule" "dist/scraper.jar" "--main scraper"]}
+
+           :native-image
+           {:main-opts ["-m clj.native-image scraper"
+                        "--report-unsupported-elements-at-runtime"
+                        "--initialize-at-build-time"
+                        "--enable-url-protocols=http,https"]
+            :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+            :extra-deps
+            {clj.native-image
+             {:git/url "https://github.com/taylorwood/clj.native-image.git"
+              :sha "b3823a48be75122b9671c86ce5353a85589ef15f"}}}
+           }
+ }
