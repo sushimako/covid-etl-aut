@@ -2,8 +2,8 @@
 
 Functions in the `extract` namespace handle loading & parsing of datasources. Currently implemented are HTML scrapers (loaded into enlive) and a simple fetcher & parser for JSONp sources.
 
-In `transform` you'll find functions that expect output from scrapers in `extract` and turn them into a common stats data format: A hashmap
-with location identifiers (`:at` for Austria, `"W"` for Vienna, etc). A quick peek into how that map looks like:
+In `transform` you'll find functions that expect output from `extract`-scrapers and turn them into a common stats data format: A hashmap
+with location identifiers (`:at` for Austria, `"W"` for Vienna, etc) for keys, and a hashmap of statistics for values. A quick peek into how that map looks like:
 looks like this:
 ```
   {:at {:cases xxx
