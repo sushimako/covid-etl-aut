@@ -3,7 +3,11 @@
             [clojure.pprint :refer [pprint]]
             [clojure.edn :as edn]
             [cheshire.core :as json]
-            [net.cgrand.enlive-html :as enlive]))
+            [net.cgrand.enlive-html :as enlive]
+            [publish :refer [creds]]
+            [google-apps-clj.google-sheets :as gsheet]))
+
+(def config (edn/read-string (slurp "etc/config.edn")))
 ;; Scraping function
 ;;
 (defn load-page [url]
@@ -19,3 +23,8 @@
       (str/split (slurp url) #";")
       (remove nil?)
       (map parse-line))))
+
+(defn load-sheet []
+  (:values (gsheet/read-worksheet creds
+                                  (:sheet-id config)
+                                  (:worksheet-id config))))

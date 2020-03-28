@@ -17,32 +17,24 @@
   (+ (jt/time-between (local-date "dd.MM.yyyy" "26.02.2020")
                       (local-date ts)
                       :days)
-     2))
+     3))
 
 (defn col-num
+  ([]
+   {:at    {:tests 3 :cases 4 :tdouble 5}
+    "Bgld" {:cases 6 :tdouble 7}
+    "Ktn"  {:cases 8 :tdouble 9}
+    "NÖ"   {:cases 10 :tdouble 11}
+    "OÖ"   {:cases 12 :tdouble 13}
+    "Sbg"  {:cases 14 :tdouble 15}
+    "Stmk" {:cases 16 :tdouble 17}
+    "T"    {:cases 18 :tdouble 19}
+    "Vbg"  {:cases 20 :tdouble 21}
+    "W"    {:cases 22 :tdouble 23}})
   ([col]
    (get {:time 2} col))
   ([loc col]
-   (let [coords {:at                {:tests 3 :cases 4}
-                 "Bgld"             {:cases 5}
-                 "Burgenland"       {:cases 5}
-                 "Ktn"              {:cases 6}
-                 "Kärnten"          {:cases 6}
-                 "NÖ"               {:cases 7}
-                 "Niederösterreich" {:cases 7}
-                 "OÖ"               {:cases 8}
-                 "Oberösterreich"   {:cases 8}
-                 "Sbg"              {:cases 9}
-                 "Salzburg"         {:cases 9}
-                 "Stmk"             {:cases 10}
-                 "Steiermark"       {:cases 10}
-                 "T"                {:cases 11}
-                 "Tirol"            {:cases 11}
-                 "Vbg"              {:cases 12}
-                 "Vorarlberg"       {:cases 12}
-                 "W"                {:cases 13}
-                 "Wien"             {:cases 13}}]
-     (get-in coords [loc col]))))
+   (get-in (col-num) [loc col])))
 
 
 ;; Google sheets helper functions
