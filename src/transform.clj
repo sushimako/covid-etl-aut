@@ -67,7 +67,7 @@
       (Double.))))
 
 (defn tdouble-at [ts table simple]
-  (let [value (get-in (cases-at simple) [:at :cases])]
+  (let [value (parse-int (get-in (cases-at simple) [:at :cases]))]
     {:at {:tdouble (tdouble value ts table 3)}}))
 
 (defn tdouble-laender [ts table laender]
