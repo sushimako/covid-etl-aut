@@ -22,7 +22,8 @@
     (->>
       (str/split (slurp url) #";")
       (remove nil?)
-      (map parse-line))))
+      (map parse-line)
+      (into {}))))
 
 (defn load-sheet []
   (:values (gsheet/read-worksheet creds

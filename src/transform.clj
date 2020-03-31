@@ -31,20 +31,16 @@
 ;; transformation of javascript data
 ;  from info.gesundheitsminiserterium dashboad
 (defn ->timestamp [simple]
-  (let [ts-str (-> (into {} simple)
-                   (get "LetzteAktualisierung"))]
+  (let [ts-str (get simple "LetzteAktualisierung")]
    (local-date-time "dd.MM.yyyy HH:mm.ss" ts-str)))
 
 
 (defn cases-at [simple]
-  {:at {:cases (-> (into {} simple)
-                   (get "Erkrankungen"))}})
+  {:at {:cases (parse-int (get simple "Erkrankungen"))}})
 
 (defn cases-laender [laender]
-  (let [numbers (-> (into {} laender)
-                    (get "dpBundesland")
-                    (->>
-                      (map (juxt #(get % "label") #(get % "y")))))]
+  (let [numbers (->> (get laender "dpBundesland")
+                     (map (juxt #(get % "label") #(get % "y"))))]
     (into {} (map (fn [[k v]] [k {:cases v}]) numbers))))
 
 ;; not using to-array-2d/aget for nil-punning
@@ -67,7 +63,7 @@
       (Double.))))
 
 (defn tdouble-at [ts table simple]
-  (let [value (parse-int (get-in (cases-at simple) [:at :cases]))]
+  (let [value (get-in (cases-at simple) [:at :cases])]
     {:at {:tdouble (tdouble value ts table 3)}}))
 
 (defn tdouble-laender [ts table laender]
