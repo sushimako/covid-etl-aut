@@ -1,10 +1,16 @@
 {:deps
- {nrepl {:mvn/version "0.6.0"}
-  enlive {:mvn/version "1.1.6"}
+ {enlive {:mvn/version "1.1.6"}
   clojure.java-time {:mvn/version "0.3.2"}
   cheshire {:mvn/version "5.10.0"}
   google-apps-clj {:mvn/version "0.6.1"}}
- :aliases {:uberjar
+ :aliases {:nrepl
+           {:extra-deps {nrepl {:mvn/version "0.6.0"}
+                         mvxcvi/whidbey {:mvn/version "2.2.0"}}
+            :main-opts ["-m nrepl.cmdline"
+                        "--interactive"
+                        ;"--middleware [whidbey.plugin/repl-pprint]"
+                        ]}
+           :uberjar
            {:extra-deps
             {pack/pack.alpha
              {:git/url "https://github.com/juxt/pack.alpha.git"
