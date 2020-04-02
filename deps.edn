@@ -15,10 +15,10 @@
             {pack/pack.alpha
              {:git/url "https://github.com/juxt/pack.alpha.git"
               :sha     "c70740ffc10805f34836da2160fa1899601fac02"}}
-            :main-opts ["-m" "mach.pack.alpha.capsule" "dist/scraper.jar" "--main scraper"]}
+            :main-opts ["-m" "mach.pack.alpha.capsule" "dist/core.jar" "--main core"]}
 
            :native-image
-           {:main-opts ["-m clj.native-image scraper"
+           {:main-opts ["-m clj.native-image core"
                         "--report-unsupported-elements-at-runtime"
                         "--initialize-at-build-time"
                         "--enable-url-protocols=http,https"]

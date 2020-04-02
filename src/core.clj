@@ -1,5 +1,6 @@
-(ns scraper
-  (:require [clojure.string :as str]
+(ns core
+  (:require [clojure.repl]
+            [clojure.string :as str]
             [clojure.pprint :refer [pprint]]
             [java-time :as jt]
             [extract]
