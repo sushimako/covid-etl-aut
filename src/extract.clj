@@ -1,13 +1,11 @@
 (ns extract
   (:require [clojure.string :as str]
             [clojure.pprint :refer [pprint]]
-            [clojure.edn :as edn]
             [cheshire.core :as json]
             [net.cgrand.enlive-html :as enlive]
             [publish :refer [creds]]
             [google-apps-clj.google-sheets :as gsheet]))
 
-(def config (edn/read-string (slurp "etc/config.edn")))
 ;; Scraping function
 ;;
 (defn load-page [url]
@@ -28,7 +26,5 @@
 (defn load-json [url]
   (json/parse-string (slurp url)))
 
-(defn load-sheet []
-  (:values (gsheet/read-worksheet creds
-                                  (:sheet-id config)
-                                  (:worksheet-id config))))
+(defn load-sheet [sheet-id worksheet-id]
+  (:values (gsheet/read-worksheet creds sheet-id worksheet-id)))

@@ -40,12 +40,12 @@
 ;;; Transformation & Stats collectors
 ;;
 
-(defn timestamp [allgemein]
+(defn timestamp [{:keys [allgemein]}]
   (let [ts-str (get (first allgemein) "date")]
     (local-date-time "yyyyMMdd_HHmmss" ts-str)))
 
 
-(defn cases-at [allgemein]
+(defn cases-at [{:keys [allgemein]}]
   (let [{:strs [erkrankungen hospitalisiert
                 intensivstation nr_tests]} (first allgemein)]
     {:at {:tests nr_tests
@@ -53,14 +53,14 @@
           :hospital hospitalisiert
           :icu intensivstation}}))
 
-(defn cases-laender [bundesland]
+(defn cases-laender [{:keys [bundesland]}]
   (->> bundesland
        (map (fn [{:strs [bundesland freq]}]
               [(land->kw bundesland) {:cases freq}]))
        (into {})))
 
 
-(defn status-laender [hospitalisierung]
+(defn status-laender [{:keys [hospitalisierung]}]
   (->> hospitalisierung
        (map (fn [{:strs [bundesland hospitalisiert intensivstation]}]
               [(land->kw bundesland) {:hospital hospitalisiert
@@ -68,14 +68,14 @@
        (into {})))
 
 
-(defn outcomes-at [page]
+(defn outcomes-at [{:keys [page]}]
   (let [node (enlive/select page [:#content :> :p])
         node-died (-> node (nth 3) :content (nth 4))
         node-recov (-> node (nth 4) :content (nth 1))]
     {:at {:died (->> node-died (re-find #"[\d\.]+") parse-int)
           :recovered (->> node-recov (re-find #"[\d\.]+") parse-int)}}))
 
-(defn outcomes-laender [page]
+(defn outcomes-laender [{:keys [page]}]
   (let [node (enlive/select page [:#content :> :p])
         died (->> (-> node (nth 3) :content (nth 4))
                   (re-seq #"(\p{L}+) \(([\d\.]+)\)")
@@ -108,12 +108,12 @@
       (format "%.1f")
       (Double.))))
 
-(defn tdouble-at [ts table allgemein]
-  (let [value (get-in (cases-at allgemein) [:at :cases])]
+(defn tdouble-at [{:keys [ts table allgemein] :as data}]
+  (let [value (get-in (cases-at data) [:at :cases])]
     {:at {:tdouble (tdouble value ts table 3)}}))
 
-(defn tdouble-laender [ts table bundesland]
-  (->> (for [[land {:keys [cases]}] (cases-laender bundesland)
+(defn tdouble-laender [{:keys [ts table bundesland] :as data}]
+  (->> (for [[land {:keys [cases]}] (cases-laender data)
              :let [col (publish/col-num land :cases)]]
          [land {:tdouble (tdouble cases ts table (dec col))}])
        (into {})))
