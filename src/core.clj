@@ -10,6 +10,15 @@
   (:gen-class))
 
 (def config (edn/read-string (slurp "etc/config.edn")))
+
+(defn before? [earlier latter]
+  (cond
+    (nil? latter) false
+    (nil? earlier) true
+    :else (> (jt/time-between (jt/local-time earlier)
+                              (jt/local-time latter)
+                              :seconds)
+             0)))
 (def sources
   {:page
    [extract/load-page "https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html"]
@@ -22,39 +31,15 @@
    :table
    [extract/load-sheet (:sheet-id config) (:worksheet-id config)]})
 
-(defn load-all []
-  (->> sources
-       (pmap (fn [[name [load-fn & args]]]
-               [name (apply load-fn args)]))
-       (into {})))
-
-(defn load-only [name]
-  (when-let [[load-fn & args] (get sources name)]
-    {name (apply load-fn args)}))
-
-(defn before? [earlier latter]
-  (cond
-    (nil? latter) false
-    (nil? earlier) true
-    :else (> (jt/time-between (jt/local-time earlier)
-                              (jt/local-time latter)
-                              :seconds)
-             0)))
-
-(defn fetch-ts []
-  (-> (load-only :allgemein)
-      (transform/timestamp)))
-
-(defn publish-all! [ts stats]
-  (let [cutoff (jt/local-time 15 30)]
-    (prn "publishing new results!")
-    (when (before? (jt/local-time ts) cutoff)
-      (prn "updating sheet...")
-      (publish/update-cells! ts stats)
-      (publish/update-time! ts))
-    (prn "updating json...")
-    (publish/dump-json! ts stats "covid.json")))
-
+(defn load-data
+  ([]
+   (->> sources
+        (pmap (fn [[name [load-fn & args]]]
+                [name (apply load-fn args)]))
+        (into {})))
+  ([name]
+   (when-let [[load-fn & args] (get sources name)]
+     {name (apply load-fn args)})))
 
 (defn transform-all [data]
   (merge-with merge
@@ -66,18 +51,32 @@
               (transform/tdouble-at data)
               (transform/tdouble-laender data)))
 
+(defn publish-all! [ts stats]
+  (let [cutoff (jt/local-time 15 30)]
+    (prn "updating json...")
+    (publish/dump-json! ts stats "covid.json")
+    (when (before? (jt/local-time ts) cutoff)
+      (prn "updating sheet...")
+      (publish/update-cells! ts stats)
+      (publish/update-time! ts))))
+
+(defn fetch-ts []
+  (-> (load-data :allgemein)
+      (transform/timestamp)))
+
+
 (defn -main []
-  (loop [ts (fetch-ts) last-update nil]
+  (loop [last-update nil ts (fetch-ts)]
     (if (before? last-update ts)
-      (let [stats (-> (load-all)
+      (let [stats (-> (load-data)
                       (assoc :ts ts)
                       (transform-all))]
         (publish-all! ts stats)
         (prn "sleeping for 30mins... zZz")
         (Thread/sleep (* 30 60 1000))
-        (recur (fetch-ts) ts))
+        (recur ts (fetch-ts)))
       (do
         (prn "no update, waiting 5mins")
         (Thread/sleep (* 5 60 1000))
-        (recur (fetch-ts) last-update))))
+        (recur last-update (fetch-ts)))))
   (prn "bye!"))
