@@ -77,19 +77,21 @@
     {:at {:died (->> node-died (re-find #"[\d\.]+") parse-int)
           :recovered (->> node-recov (re-find #"[\d\.]+") parse-int)}}))
 
-(defn outcomes-laender [{:keys [page]}]
-  (let [node (enlive/select page [:#content :> :p])
-        died (->> (-> node (nth 3) :content (nth 4))
-                  (re-seq #"(\p{L}+) \(([\d\.]+)\)")
-                  (map (fn [[_ land died]]
-                         [(land->kw land) {:died (parse-int died)}]))
-                  (into {}))
-        recov (->> (-> node (nth 4) :content (nth 1))
-                   (re-seq #"(\p{L}+) \(([\d\.]+)\)")
-                   (map (fn [[_ land recov]]
-                          [(land->kw land) {:recovered (parse-int recov)}]))
-                   (into {}))]
-    (merge-with merge died recov)))
+(defn outcomes-laender
+  ([data]
+   (merge-with merge
+               (outcomes-laender data :died)
+               (outcomes-laender data :recovered)))
+  ([{:keys [page]} outcome]
+   (let [node (enlive/select page [:#content :> :p])
+         string (case outcome
+                  :died (-> node (nth 3) :content (nth 4))
+                  :recovered (-> node (nth 4) :content (nth 1)))]
+     (->> string
+          (re-seq #"(\p{L}+) \(([\d\.]+)\)")
+          (map (fn [[_ land val]]
+                 [(land->kw land) {outcome (parse-int val)}]))
+          (into {})))))
 
 ;; not using to-array-2d/aget for nil-punning
 (defn tget [table row col]

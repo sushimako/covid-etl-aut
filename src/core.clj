@@ -22,13 +22,13 @@
    :table
    [extract/load-sheet (:sheet-id config) (:worksheet-id config)]})
 
-(defn load-all [sources]
+(defn load-all []
   (->> sources
        (pmap (fn [[name [load-fn & args]]]
                [name (apply load-fn args)]))
        (into {})))
 
-(defn load-only [sources name]
+(defn load-only [name]
   (when-let [[load-fn & args] (get sources name)]
     {name (apply load-fn args)}))
 
@@ -42,7 +42,7 @@
              0)))
 
 (defn fetch-ts []
-  (-> (load-only sources :allgemein)
+  (-> (load-only :allgemein)
       (transform/timestamp)))
 
 (defn publish-all! [ts stats]
@@ -69,8 +69,9 @@
 (defn -main []
   (loop [ts (fetch-ts) last-update nil]
     (if (before? last-update ts)
-      (let [data (assoc (load-all sources) :ts ts)
-            stats (transform-all data)]
+      (let [stats (-> (load-all)
+                      (assoc :ts ts)
+                      (transform-all))]
         (publish-all! ts stats)
         (prn "sleeping for 30mins... zZz")
         (Thread/sleep (* 30 60 1000))
