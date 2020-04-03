@@ -3,7 +3,7 @@
             [clojure.pprint :refer [pprint]]
             [clojure.edn :as edn]
             [google-apps-clj.credentials :as gcreds]
-            [java-time :as jt :refer [local-date local-date-time]]
+            [java-time :as jt :refer [local-date zoned-date-time offset-date-time]]
             [cheshire.core :as json]
             [net.cgrand.enlive-html :as enlive]
             [google-apps-clj.google-sheets :as gsheet]
@@ -41,8 +41,10 @@
 ;;
 
 (defn timestamp [{:keys [allgemein]}]
-  (let [ts-str (get (first allgemein) "date")]
-    (local-date-time "yyyyMMdd_HHmmss" ts-str)))
+  (let [ts-str (get (first allgemein) "date")
+        tz "CEST"]
+    (-> (zoned-date-time "yyyyMMdd_HHmmss z" (str ts-str " " tz))
+        (offset-date-time))))
 
 
 (defn cases-at [{:keys [allgemein]}]

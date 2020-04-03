@@ -12,7 +12,7 @@
 (def scopes [com.google.api.services.drive.DriveScopes/DRIVE])
 (defonce creds (gcreds/default-credential scopes))
 
-(add-encoder java.time.LocalDateTime
+(add-encoder java.time.OffsetDateTime
              (fn [c jsonGenerator]
                (.writeString jsonGenerator (.toString c))))
 
