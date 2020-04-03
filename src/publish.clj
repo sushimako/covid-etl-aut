@@ -2,6 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.pprint :refer [pprint]]
             [clojure.edn :as edn]
+            [cheshire.core :as json]
+            [cheshire.generate :refer [add-encoder]]
             [java-time :as jt :refer [local-date local-date-time]]
             [google-apps-clj.credentials :as gcreds]
             [google-apps-clj.google-sheets :as gsheet]))
@@ -9,6 +11,10 @@
 (def config (edn/read-string (slurp "etc/config.edn")))
 (def scopes [com.google.api.services.drive.DriveScopes/DRIVE])
 (defonce creds (gcreds/default-credential scopes))
+
+(add-encoder java.time.LocalDateTime
+             (fn [c jsonGenerator]
+               (.writeString jsonGenerator (.toString c))))
 
 
 ;; Row/Coll mappings
@@ -21,16 +27,16 @@
 
 (defn col-num
   ([]
-   {:at    {:tests 3 :cases 4 :tdouble 5}
-    "Bgld" {:cases 6 :tdouble 7}
-    "Ktn"  {:cases 8 :tdouble 9}
-    "NÖ"   {:cases 10 :tdouble 11}
-    "OÖ"   {:cases 12 :tdouble 13}
-    "Sbg"  {:cases 14 :tdouble 15}
-    "Stmk" {:cases 16 :tdouble 17}
-    "T"    {:cases 18 :tdouble 19}
-    "Vbg"  {:cases 20 :tdouble 21}
-    "W"    {:cases 22 :tdouble 23}})
+   {:at    {:cases 4  :tdouble 5  :recovered 6  :icu 7  :died 8  :tests 3}
+    :bgld  {:cases 9  :tdouble 10 :recovered 11 :icu 12 :died 13}
+    :ktn   {:cases 14 :tdouble 15 :recovered 16 :icu 17 :died 18}
+    :noe   {:cases 19 :tdouble 20 :recovered 21 :icu 22 :died 23}
+    :ooe   {:cases 24 :tdouble 25 :recovered 26 :icu 27 :died 28}
+    :sbg   {:cases 29 :tdouble 30 :recovered 31 :icu 32 :died 33}
+    :stmk  {:cases 34 :tdouble 35 :recovered 36 :icu 37 :died 38}
+    :tirol {:cases 39 :tdouble 40 :recovered 41 :icu 42 :died 43}
+    :vbg   {:cases 44 :tdouble 45 :recovered 46 :icu 47 :died 48}
+    :wien  {:cases 49 :tdouble 50 :recovered 51 :icu 52 :died 53}})
   ([col]
    (get {:time 2} col))
   ([loc col]
@@ -57,6 +63,10 @@
           cell [row-num col-num value]]
       (gsheet/update-cell creds sheet-id worksheet-id cell))))
 
+(defn dump-json! [ts stats path]
+  (->> {:ts ts :stats stats}
+       (json/generate-string)
+       (spit path)))
 
 ; playground
 (comment

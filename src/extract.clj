@@ -25,6 +25,9 @@
       (map parse-line)
       (into {}))))
 
+(defn load-json [url]
+  (json/parse-string (slurp url)))
+
 (defn load-sheet []
   (:values (gsheet/read-worksheet creds
                                   (:sheet-id config)

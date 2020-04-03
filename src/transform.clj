@@ -17,31 +17,77 @@
          (Integer.))
     0))
 
+(defn land->kw [land-name]
+  (get {"Burgenland"       :bgld
+        "Bgld"             :bgld
+        "Kärnten"          :ktn
+        "Ktn"              :ktn
+        "Niederösterreich" :noe
+        "NÖ"               :noe
+        "Oberösterreich"   :ooe
+        "OÖ"               :ooe
+        "Salzburg"         :sbg
+        "Sbg"              :sbg
+        "Steiermark"       :stmk
+        "Stmk"             :stmk
+        "Tirol"            :tirol
+        "T"                :tirol
+        "Vorarlberg"       :vbg
+        "Vbg"              :vbg
+        "Wien"             :wien
+        "W"                :wien}
+       land-name))
 ;;; Transformation & Stats collectors
 ;;
 
-;; HTML based scraping
-;
-(defn tests [page]
-  (let [node (enlive/select page [:#content :p])]
-    {:at
-     {:tests (-> node (nth 2) :content second parse-int)}}))
+(defn timestamp [allgemein]
+  (let [ts-str (get (first allgemein) "date")]
+    (local-date-time "yyyyMMdd_HHmmss" ts-str)))
 
 
-;; transformation of javascript data
-;  from info.gesundheitsminiserterium dashboad
-(defn ->timestamp [simple]
-  (let [ts-str (get simple "LetzteAktualisierung")]
-   (local-date-time "dd.MM.yyyy HH:mm.ss" ts-str)))
+(defn cases-at [allgemein]
+  (let [{:strs [erkrankungen hospitalisiert
+                intensivstation nr_tests]} (first allgemein)]
+    {:at {:tests nr_tests
+          :cases erkrankungen
+          :hospital hospitalisiert
+          :icu intensivstation}}))
+
+(defn cases-laender [bundesland]
+  (->> bundesland
+       (map (fn [{:strs [bundesland freq]}]
+              [(land->kw bundesland) {:cases freq}]))
+       (into {})))
 
 
-(defn cases-at [simple]
-  {:at {:cases (parse-int (get simple "Erkrankungen"))}})
+(defn status-laender [hospitalisierung]
+  (->> hospitalisierung
+       (map (fn [{:strs [bundesland hospitalisiert intensivstation]}]
+              [(land->kw bundesland) {:hospital hospitalisiert
+                                      :icu intensivstation}]))
+       (into {})))
 
-(defn cases-laender [laender]
-  (let [numbers (->> (get laender "dpBundesland")
-                     (map (juxt #(get % "label") #(get % "y"))))]
-    (into {} (map (fn [[k v]] [k {:cases v}]) numbers))))
+
+(defn outcomes-at [page]
+  (let [node (enlive/select page [:#content :> :p])
+        node-died (-> node (nth 3) :content (nth 4))
+        node-recov (-> node (nth 4) :content (nth 1))]
+    {:at {:died (->> node-died (re-find #"[\d\.]+") parse-int)
+          :recovered (->> node-recov (re-find #"[\d\.]+") parse-int)}}))
+
+(defn outcomes-laender [page]
+  (let [node (enlive/select page [:#content :> :p])
+        died (->> (-> node (nth 3) :content (nth 4))
+                  (re-seq #"(\p{L}+) \(([\d\.]+)\)")
+                  (map (fn [[_ land died]]
+                         [(land->kw land) {:died (parse-int died)}]))
+                  (into {}))
+        recov (->> (-> node (nth 4) :content (nth 1))
+                   (re-seq #"(\p{L}+) \(([\d\.]+)\)")
+                   (map (fn [[_ land recov]]
+                          [(land->kw land) {:recovered (parse-int recov)}]))
+                   (into {}))]
+    (merge-with merge died recov)))
 
 ;; not using to-array-2d/aget for nil-punning
 (defn tget [table row col]
@@ -62,12 +108,12 @@
       (format "%.1f")
       (Double.))))
 
-(defn tdouble-at [ts table simple]
-  (let [value (get-in (cases-at simple) [:at :cases])]
+(defn tdouble-at [ts table allgemein]
+  (let [value (get-in (cases-at allgemein) [:at :cases])]
     {:at {:tdouble (tdouble value ts table 3)}}))
 
-(defn tdouble-laender [ts table laender]
-  (->> (for [[land {:keys [cases]}] (cases-laender laender)
+(defn tdouble-laender [ts table bundesland]
+  (->> (for [[land {:keys [cases]}] (cases-laender bundesland)
              :let [col (publish/col-num land :cases)]]
          [land {:tdouble (tdouble cases ts table (dec col))}])
        (into {})))
