@@ -9,9 +9,7 @@
 ;; Scraping function
 ;;
 (defn load-page [url]
-  (do
-    (prn "fetching & parsing page")
-    (enlive/html-resource (java.net.URL. url))))
+  (enlive/html-resource (java.net.URL. url)))
 
 (defn load-js [url]
   (letfn [(parse-line [line] [(get-sym line) (get-val line)])
