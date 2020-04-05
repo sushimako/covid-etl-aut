@@ -99,11 +99,11 @@
           (nth col nil)))
 
 (defn tdouble [value ts table col]
-  (let [row (- (ts->row-num ts) 3)
+  (let [row (- (ts->row-num ts) 2)
         median (/ value 2)]
     (->>
       (loop [days 0 previous value]
-        (let [current (parse-int (tget table (- row days) col))]
+        (let [current (tget table (- row days) col)]
           (if (<= current median)
             (+ days (/ (- median previous)
                        (- current previous)))

@@ -27,7 +27,7 @@
    :hospitalisierung
    [extract/load-json "https://github.com/statistikat/coronaDAT/raw/master/latest/hospitalisierungen_bl.json"]
    :table
-   [extract/load-sheet (:sheet-id config) (:worksheet-id config)]})
+   [extract/load-sheet (:sheet-id config) (:worksheet-name config)]})
 
 (defn load-data
   ([]

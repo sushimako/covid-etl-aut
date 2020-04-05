@@ -4,7 +4,8 @@
             [cheshire.core :as json]
             [net.cgrand.enlive-html :as enlive]
             [publish :refer [creds]]
-            [google-apps-clj.google-sheets :as gsheet]))
+            [google-apps-clj.google-sheets :as gsheet]
+            [google-apps-clj.google-sheets-v4 :as gsheet4]))
 
 ;; Scraping function
 ;;
@@ -24,5 +25,7 @@
 (defn load-json [url]
   (json/parse-string (slurp url)))
 
-(defn load-sheet [sheet-id worksheet-id]
-  (:values (gsheet/read-worksheet creds sheet-id worksheet-id)))
+(defonce svc4 (gsheet4/build-service creds))
+(defn load-sheet [sheet-id worksheet-name]
+  (first
+    (gsheet4/get-cell-values svc4 sheet-id [(str worksheet-name "!A:ZZ")])))
