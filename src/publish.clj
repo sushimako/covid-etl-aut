@@ -72,13 +72,15 @@
 (comment
 
   (defonce svc (gsheet/build-sheet-service creds))
-  (defonce sheet (-> (gsheet/find-spreadsheet-by-id svc sheet-id)
+  (defonce sheet (-> (gsheet/find-spreadsheet-by-id svc "15Uky6rrLP2okIKHXZw-rziuPAEydtk0v9BpV7u53DKM")
                      :spreadsheet))
   (defonce page (load-page src-url))
-  (stats-at page)
 
   (-> (gsheet/find-worksheet-by-title svc sheet "(src)")
       :worksheet
       (.getId))
   (-> (gsheet/find-spreadsheet-by-id svc "15Uky6rrLP2okIKHXZw-rziuPAEydtk0v9BpV7u53DKM")
-      :worksheet))
+      :worksheet)
+
+  (defonce svc4 (gsheet4/build-service creds))
+  (def sheet-data (gsheet4/get-cell-values svc4 "15Uky6rrLP2okIKHXZw-rziuPAEydtk0v9BpV7u53DKM" ["(src)!A:ZZ"])))
