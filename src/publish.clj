@@ -27,16 +27,16 @@
 
 (defn col-num
   ([]
-   {:at    {:cases 4  :tdouble 5  :recovered 6  :icu 7  :died 8  :tests 3}
-    :bgld  {:cases 9  :tdouble 10 :recovered 11 :icu 12 :died 13}
-    :ktn   {:cases 14 :tdouble 15 :recovered 16 :icu 17 :died 18}
-    :noe   {:cases 19 :tdouble 20 :recovered 21 :icu 22 :died 23}
-    :ooe   {:cases 24 :tdouble 25 :recovered 26 :icu 27 :died 28}
-    :sbg   {:cases 29 :tdouble 30 :recovered 31 :icu 32 :died 33}
-    :stmk  {:cases 34 :tdouble 35 :recovered 36 :icu 37 :died 38}
-    :tirol {:cases 39 :tdouble 40 :recovered 41 :icu 42 :died 43}
-    :vbg   {:cases 44 :tdouble 45 :recovered 46 :icu 47 :died 48}
-    :wien  {:cases 49 :tdouble 50 :recovered 51 :icu 52 :died 53}})
+   {:at    {:cases 4  :tdouble 5  :hospital 6  :icu 7  :recovered 8  :died 9  :tests 3}
+    :bgld  {:cases 10 :tdouble 11 :hospital 12 :icu 13 :recovered 14 :died 15}
+    :ktn   {:cases 16 :tdouble 17 :hospital 18 :icu 19 :recovered 20 :died 21}
+    :noe   {:cases 22 :tdouble 23 :hospital 24 :icu 25 :recovered 26 :died 27}
+    :ooe   {:cases 28 :tdouble 29 :hospital 30 :icu 31 :recovered 32 :died 33}
+    :sbg   {:cases 34 :tdouble 35 :hospital 36 :icu 37 :recovered 38 :died 39}
+    :stmk  {:cases 40 :tdouble 41 :hospital 42 :icu 43 :recovered 44 :died 45}
+    :tirol {:cases 46 :tdouble 47 :hospital 48 :icu 49 :recovered 50 :died 51}
+    :vbg   {:cases 52 :tdouble 53 :hospital 54 :icu 55 :recovered 56 :died 57}
+    :wien  {:cases 58 :tdouble 59 :hospital 60 :icu 61 :recovered 62 :died 63}})
   ([col]
    (get {:time 2} col))
   ([loc col]
