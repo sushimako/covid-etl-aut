@@ -15,10 +15,8 @@
   (cond
     (nil? latter) false
     (nil? earlier) true
-    :else (> (jt/time-between (jt/local-time earlier)
-                              (jt/local-time latter)
-                              :seconds)
-             0)))
+    :else (> (jt/time-between earlier latter :seconds) 0)))
+
 (def sources
   {:page
    [extract/load-page "https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html"]
@@ -52,10 +50,10 @@
               (transform/tdouble-laender data)))
 
 (defn publish-all! [ts stats]
-  (let [cutoff (jt/local-time 15 30)]
+  (let [cutoff (jt/adjust (jt/offset-date-time) (jt/offset-time 15 30))]
     (prn "updating json...")
     (publish/dump-json! ts stats "covid.json")
-    (when (before? (jt/local-time ts) cutoff)
+    (when (before? ts cutoff)
       (prn "updating sheet...")
       (publish/update-cells! ts stats)
       (publish/update-time! ts))))
