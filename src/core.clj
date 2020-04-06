@@ -50,7 +50,10 @@
               (transform/tdouble-laender data)))
 
 (defn publish-all! [ts stats]
-  (let [cutoff (jt/adjust (jt/offset-date-time) (jt/offset-time 15 30))]
+  (let [cutoff (jt/with-offset
+                 (jt/adjust ts (jt/local-time 15 30))
+                 (jt/zone-offset ts))]
+    (prn :ts ts :cutoff cutoff)
     (prn "updating json...")
     (publish/dump-json! ts stats "covid.json")
     (when (before? ts cutoff)
