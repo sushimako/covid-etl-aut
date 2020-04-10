@@ -20,22 +20,31 @@
 (defn land->kw [land-name]
   (get {"Burgenland"       :bgld
         "Bgld"             :bgld
+        [:nuts 1]          :bgld
         "Kärnten"          :ktn
         "Ktn"              :ktn
+        [:nuts 2]          :ktn
         "Niederösterreich" :noe
         "NÖ"               :noe
+        [:nuts 3]          :noe
         "Oberösterreich"   :ooe
         "OÖ"               :ooe
+        [:nuts 4]          :ooe
         "Salzburg"         :sbg
         "Sbg"              :sbg
+        [:nuts 5]          :sbg
         "Steiermark"       :stmk
         "Stmk"             :stmk
+        [:nuts 6]          :stmk
         "Tirol"            :tirol
         "T"                :tirol
+        [:nuts 7]          :tirol
         "Vorarlberg"       :vbg
         "Vbg"              :vbg
+        [:nuts 8]          :vbg
         "Wien"             :wien
-        "W"                :wien}
+        "W"                :wien
+        [:nuts 9]          :wien}
        land-name))
 ;;; Transformation & Stats collectors
 ;;
@@ -57,15 +66,15 @@
 
 (defn cases-laender [{:keys [bundesland]}]
   (->> bundesland
-       (map (fn [{:strs [bundesland freq]}]
-              [(land->kw bundesland) {:cases freq}]))
+       (map (fn [{:strs [nuts2 freq]}]
+              [(land->kw [:nuts nuts2]) {:cases freq}]))
        (into {})))
 
 
 (defn status-laender [{:keys [hospitalisierung]}]
   (->> hospitalisierung
-       (map (fn [{:strs [bundesland hospitalisiert intensivstation]}]
-              [(land->kw bundesland) {:hospital hospitalisiert
+       (map (fn [{:strs [nuts2 hospitalisiert intensivstation]}]
+              [(land->kw [:nuts nuts2]) {:hospital hospitalisiert
                                       :icu intensivstation}]))
        (into {})))
 
