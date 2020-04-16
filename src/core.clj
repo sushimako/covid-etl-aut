@@ -1,8 +1,6 @@
 (ns core
   (:require [clojure.repl]
             [clojure.edn :as edn]
-            [clojure.string :as str]
-            [clojure.pprint :refer [pprint]]
             [java-time :as jt]
             [extract]
             [transform]
@@ -20,12 +18,6 @@
 (def sources
   {:page
    [extract/load-page "https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html"]
-   :allgemein
-   [extract/load-json "https://github.com/statistikat/coronaDAT/raw/master/latest/allgemein.json"]
-   :bundesland
-   [extract/load-json "https://github.com/statistikat/coronaDAT/raw/master/latest/bundesland.json"]
-   :hospitalisierung
-   [extract/load-json "https://github.com/statistikat/coronaDAT/raw/master/latest/hospitalisierungen_bl.json"]
    :table
    [extract/load-sheet (:sheet-id config) (:worksheet-name config)]})
 
@@ -41,17 +33,13 @@
 
 (defn transform-all [data]
   (merge-with merge
-              (transform/cases-at data)
-              (transform/cases-laender data)
-              (transform/status-laender data)
-              (transform/outcomes-at data)
-              (transform/outcomes-laender data)
+              (transform/all-stats data)
               (transform/tdouble-at data)
               (transform/tdouble-laender data)))
 
 (defn publish-all! [ts stats]
   (let [cutoff (jt/with-offset
-                 (jt/adjust ts (jt/local-time 15 30))
+                 (jt/adjust ts (jt/local-time 16 30))
                  (jt/zone-offset ts))]
     (prn :ts ts :cutoff cutoff)
     (prn "updating json...")
@@ -62,7 +50,7 @@
       (publish/update-time! ts))))
 
 (defn fetch-ts []
-  (-> (load-data :allgemein)
+  (-> (load-data :page)
       (transform/timestamp)))
 
 
