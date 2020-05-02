@@ -58,8 +58,12 @@
 (defn all-stats [{:keys [page]}]
   (let [rows {:cases 1 :died 2 :recovered 3 :hospital 4 :icu 5 :tests 6}
         ks [:bgld :ktn :noe :ooe :sbg :stmk :tirol :vbg :wien :at]
+        extract-column (fn [column]
+                       (case (count (:content column))
+                         1 (:content column)
+                         3 (-> column :content second :content)))
         parse-row #(->> (enlive/select page [:.table :> :tbody [:tr (enlive/nth-of-type %)] :td])
-                        (mapcat :content)
+                        (mapcat extract-column)
                         (map transform/parse-int)
                         (zipmap ks))]
     (apply (partial merge-with merge)
