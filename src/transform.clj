@@ -61,7 +61,8 @@
         extract-column (fn [column]
                          (case (count (:content column))
                            1 (or (-> column :content first :content) (:content column))
-                           2 (list (first (:content column)))
+                           2 (or (some-> column :content second :content)
+                                 (list  (first (:content column))))
                            3 (-> column :content second :content)))
         parse-row #(->> (enlive/select page [:.table :> :tbody [:tr (enlive/nth-of-type %)] :td])
                         (mapcat extract-column)
