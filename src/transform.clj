@@ -60,7 +60,10 @@
         ks [:bgld :ktn :noe :ooe :sbg :stmk :tirol :vbg :wien :at]
         extract-column (fn [column]
                          (case (count (:content column))
-                           1 (or (-> column :content first :content) (:content column))
+                           1 (or (-> column :content first :content first :content first :content)
+                                 (-> column :content first :content first :content)
+                                 (-> column :content first :content)
+                                 (:content column))
                            2 (or (some-> column :content second :content)
                                  (list  (first (:content column))))
                            3 (-> column :content second :content)))
