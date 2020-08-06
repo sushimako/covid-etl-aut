@@ -65,6 +65,7 @@
                                  (-> column :content first :content)
                                  (:content column))
                            2 (or (some-> column :content second :content)
+                                 (list (second (:content column)))
                                  (list  (first (:content column))))
                            3 (-> column :content second :content)))
         parse-row #(->> (enlive/select page [:.table :> :tbody [:tr (enlive/nth-of-type %)] :td])
