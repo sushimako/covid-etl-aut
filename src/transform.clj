@@ -50,7 +50,8 @@
                    :content
                    last)
         date-str (re-find #"\d{2}\.\d{2}\.\d{4}" ts-str)
-        time-str (re-find #"\d{2}:\d{2}" ts-str)
+        [hrs mins] (mapv parse-int (rest (re-find #"(\d{1,2}):(\d{1,2})" ts-str)))
+        time-str (format "%02d:%02d" hrs mins)
         cleaned-ts (str/join " " [date-str time-str "CEST"])]
     (-> (zoned-date-time "dd.MM.yyyy HH:mm z" cleaned-ts)
         (offset-date-time))))
