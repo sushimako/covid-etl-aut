@@ -70,6 +70,7 @@
                                  (list  (first (:content column))))
                            3 (-> column :content second :content)))
         parse-row #(->> (enlive/select page [:.table :> :tbody [:tr (enlive/nth-of-type %)] :td])
+                        (take 10)
                         (mapcat extract-column)
                         (map transform/parse-int)
                         (zipmap ks))]
